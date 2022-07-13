@@ -1,5 +1,6 @@
 # Ansible script to install k8s cluster
 
+Only apply for RHEL7 Node
 ## Ansible playbook to install k8s cluster version 1.22.10
 
 Command:
