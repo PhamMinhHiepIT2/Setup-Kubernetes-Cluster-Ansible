@@ -1,0 +1,6 @@
+---
+# defaults file for worker
+
+k8s_cluster_name: "k8s-cluster"
+k8s_node_user: "ec2-user"
+k8s_node_group: "ec2-user"

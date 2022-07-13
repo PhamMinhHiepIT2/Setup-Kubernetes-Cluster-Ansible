@@ -1,0 +1,5 @@
+[ec2_master]
+10.10.0.74 ansible_ssh_user=ec2-user ansible_port=22
+
+[ec2_worker]
+10.10.0.77 ansible_ssh_user=ec2-user ansible_port=22

@@ -1,0 +1,85 @@
+- name: Download fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+  become: true
+  get_url:
+    url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+    dest: /tmp/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+    mode: '777'
+
+# - name: Install required packages
+#   yum:
+#     name: "{{ item }}"
+#     state: latest
+#   with_items:
+#     - yum-utils
+#     - device-mapper-persistent-data
+#     - lvm2
+
+- name: Add Docker repo
+  get_url:
+    url: "{{ docker_repo }}"
+    dest: /etc/yum.repos.d/docker-ce.repo
+        
+- name: Enable Docker Edge & Test repo
+  ini_file:
+    dest: /etc/yum.repos.d/docker-ce.repo
+    section: "{{ item }}"
+    option: enabled
+    value: 0
+  with_items: ['docker-ce-test', 'docker-ce-edge']
+
+- name: Download fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+  get_url:
+    url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+    dest: /tmp/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+    mode: '777'
+
+- name: Install package fuse-overlay.
+  become: true
+  yum:
+     name: /tmp/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+     state: present
+
+- name: Download slirp4netns
+  ansible.builtin.get_url:
+    url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+    dest: /tmp/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+    mode: '777'
+
+- name: Install package slirp4netns
+  become: true
+  yum:
+     name: /tmp/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+     state: present
+
+- name: Download container-selinux
+  ansible.builtin.get_url:
+    url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.107-3.el7.noarch.rpm
+    dest: /tmp/container-selinux-2.107-3.el7.noarch.rpm
+    mode: '777'
+
+- name: Install package container-selinux
+  become: true
+  yum:
+     name: /tmp/container-selinux-2.107-3.el7.noarch.rpm
+     state: present
+
+- name: Install Docker
+  package:
+    name: docker-ce
+    state: latest
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add user to docker group
+  user:
+    name: ec2-user
+    groups: docker
+    append: yes
+
+- name: change mode docker sock
+  become: true
+  command: chmod 666 /var/run/docker.sock

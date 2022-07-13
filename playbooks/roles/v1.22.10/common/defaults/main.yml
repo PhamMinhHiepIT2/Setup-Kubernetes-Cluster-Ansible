@@ -1,0 +1,12 @@
+---
+# defaults file for common
+
+kube_common_packages:
+  - kubectl
+  - kubeadm
+  - kubelet
+    
+k8s_common_services:
+  - kubelet
+
+docker_repo: "https://download.docker.com/linux/centos/docker-ce.repo"

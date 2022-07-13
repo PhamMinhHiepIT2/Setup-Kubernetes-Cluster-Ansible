@@ -1,0 +1,32 @@
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: cgroupfs # Modify it to systemd if you use containerd
+containerRuntime: remote
+---
+apiVersion: kubeadm.k8s.io/v1beta2 # v1beta3 available from v1.20.0
+kind: InitConfiguration
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: abcdef.0123456789abcdef
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+localAPIEndpoint:
+  advertiseAddress: "{{ k8s_master_advertise_address }}" # Modify it with your IP of Master node
+  bindPort: 6443
+---
+apiVersion: kubeadm.k8s.io/v1beta2 # v1beta3 available from v1.20.0
+kind: ClusterConfiguration
+apiServer:
+  timeoutForControlPlane: 4m0s
+  certSANs:
+    - "10.100.1.1"
+    - "{{ k8s_master_advertise_address }}"  # Modify it with your IP of Master node
+clusterName: "{{ k8s_cluster_name }}" # Modify it if you want to change cluster name
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+networking:
+  podSubnet: "{{ k8s_pod_cidr }}" # Modify it so that it does not match with you subnet IP

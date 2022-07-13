@@ -1,0 +1,8 @@
+---
+# defaults file for master
+
+k8s_master_advertise_address: "10.10.0.74"
+k8s_pod_cidr: "10.244.0.0/16"
+k8s_master_user: "ec2-user"
+k8s_master_group: "ec2-user"
+k8s_cluster_name: "k8s-cluster"

@@ -1,0 +1,64 @@
+---
+
+- name: Disabling Swap on all nodes
+  shell: 
+    cmd: swapoff -a
+
+- name: Commenting Swap entries in /etc/fstab
+  replace:
+    path: /etc/fstab
+    regexp: '(.*swap*)'
+    replace: '#\1'
+
+
+- name: Creating a repository file for Kubernetes
+  file:
+    path: /etc/yum.repos.d/kubernetes.repo
+    state: touch
+
+- name: Adding repository details in Kubernetes repo file.
+  blockinfile:
+    path: /etc/yum.repos.d/kubernetes.repo
+    block: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+      enabled=1
+      gpgcheck=0
+      repo_gpgcheck=0
+      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: Installing required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ kube_common_packages }}"
+
+- name: Downgrade kubectl to 1.22.10
+  yum:
+    name: kubectl-1.22.10
+    state: present
+    allow_downgrade: true
+  
+- name: Downgrade kubeadm to 1.22.10
+  yum:
+    name: kubeadm-1.22.10
+    state: present
+    allow_downgrade: true
+
+- name: Downgrade kubelet to 1.22.10
+  yum:
+    name: kubelet-1.22.10
+    state: present
+    allow_downgrade: true
+
+- name: Starting and Enabling the required services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items: "{{ k8s_common_services }}"
+
+- name: exclude kube* package when yum update
+  shell: |
+    echo 'exclude=kube*' >> /etc/yum.conf
